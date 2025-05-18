@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/css/indexStyle.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron">
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/TempLogo.png">
+    
+    
+    <title>Ai Spy</title>
+</head>
+
+<body>
+    
+    <!--add image to about, div for camera and analytical stuff, and fix the scroll text-->
+    <div class="bigtitle">
+        <!--<h1 class="maintitle">AI Spy</h1>-->
+        <img src="assets/images/AISPYLOGO.png" class="biglogo">
+    </div>
+
+    <div class="slogan">
+        <h1 class="scrolltext">Security That Never Blinks</h1>
+    </div>
+
+    <div class="aboutpttwo">
+        <h1>Frequently Asked Questions</h1>
+           <div class="Questions">
+                <div class="ququs"><h2>What are useful applications of this program?</h2></div>
+                <div class="shows"><p>This application can be applied to stores, banks, homes, and anywhere that could need an innovative layer of security.</p></div>
+           </div>
+           <div class="Questions">
+                <div class="ququs"><h2>What are some key aspects of our system?</h2></div>
+                <div class="shows"><p>Some key aspects of our system are our AI situation detector algorithm. It instantly detects emergencies and prompts the notification of first responders.</p></div>
+           </div>
+           <div class="Questions">
+                <div class="ququs"><h2>What kind of situations can this algorithm detect?</h2></div>
+                <div class="shows"><p>The algorithm can detect crimes such as theft, assault, and vandalism, along with emergency situations such as fires.</p></div>
+           </div>
+    </div>
+
+     <div class="about">
+        <h1>Our Product</h1>
+        <p>This program detects crime and emergencies through an AI algorithm on CCTV cameras. It sends the user a notification when something is happening and gives them an option to call emergency services.</p>
+        <img src="assets/images/ava_demo.gif" alt="Gif of detection" style="width: 480px;">
+    </div>
+
+    <div class="about" id="helpme">
+        <!--credits: the api, me for the frontend/art, julius for api integration, ani for research, ethan for presentation, research sources, made with canva, chatgpt-->
+        <h1>Credits</h1>
+        <dl>
+            <dt>Pryya S</dt>
+                <dd>- Frontend and website design</dd>
+            <dt>Julius M</dt>
+                <dd>- API Integration, some frontend</dd>
+            <dt>Ani K</dt>
+                <dd>- Research</dd>
+            <dt>Ethan N</dt>
+                <dd>- Marketing and Presentation</dd>
+            <dt>Research Sources</dt>
+                <dd><a href="https://openjustice.doj.ca.gov/exploration/crime-statistics">- openjustice.gov</a></dd>
+                <dd><a href="https://experience.arcgis.com/experience/c24d611442564023af92f42759ee5c42/page/Crime-Summary/">- SDPD Neighborhood Crime Summary</a></dd>
+                <dd><a href="https://www.sandiego.gov/sites/default/files/fy23ab_v2police.pdf">- San Diego Police</a></dd>
+                <dd><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5831456/">- Emergency Medical Response Service Times</a></dd>
+                <dd><a href="https://www.unitekemt.com/blog/most-common-ems-emergencies-for-emts-and-paramedics/">- 16 Most Common EMS Emergencies</a></dd>
+            <dt>APIs</dt>
+                <dd><a href="https://github.com/tensorflow/tfjs-models/tree/master/coco-ssd">- Basic AI model: coco-ssd</a></dd>
+                <dd><a href=" https://app.roboflow.com/">- Master AI model: YoloV8</a></dd>
+        </dl>
+    </div>
+
+    <div class="camera">
+        <h1>Detection</h1>
+
+            <h1 id="status">Initializing...</h1>
+    <video id="webcam" autoplay playsinline width="640" height="480"></video>
+
+    <script>
+        const webcam = document.getElementById('webcam');
+        const statusText = document.getElementById('status');
+
+        async function setupWebcam() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcam.srcObject = stream;
+        return new Promise(resolve => webcam.onloadedmetadata = () => resolve());
+        }
+
+        async function sendFrame(canvas) {
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append("file", blob, "frame.jpg");
+
+            try {
+            const res = await fetch("http://localhost:8000/detect", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            statusText.innerText = data.status || "Unknown";
+            console.log("Detected:", data.objects);
+            } catch (err) {
+            statusText.innerText = "Backend Error";
+            console.error(err);
+            }
+        }, "image/jpeg");
+        }
+
+        async function main() {
+        await setupWebcam();
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 640;
+        canvas.height = 480;
+
+        setInterval(() => {
+            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+            sendFrame(canvas);
+        }, 2000);
+        }
+
+        main();
+    </script>
+
+
+
+    </div>
+
+    <!--do not touch the grid-->
+    <div class="grid"> <script src="./assets/js/grid.js"></script></div>
+</body>
+</html>
